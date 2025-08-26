@@ -25,6 +25,7 @@ repositories {
 }
 
 dependencies {
+    // todo : 설정 파일 재정비
     implementation 'org.springframework.boot:spring-boot-starter'
     implementation 'org.springframework.kafka:spring-kafka'
     compileOnly 'org.projectlombok:lombok'

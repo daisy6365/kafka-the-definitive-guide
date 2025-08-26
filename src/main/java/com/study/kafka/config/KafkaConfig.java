@@ -1,6 +1,6 @@
 package com.study.kafka.config;
 
-import com.study.kafka.model.OrderEvent;
+import com.study.kafka.model.TrxEvent;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,7 +20,7 @@ public class KafkaConfig {
     private String kafkaBootstrapServer;
 
     @Bean
-    public ProducerFactory<String, OrderEvent> orderEventProducerFactory() {
+    public ProducerFactory<String, TrxEvent > TrxEventProducerFactory() {
         Map<String, Object> props = new HashMap<>();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServer);
         props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
@@ -34,7 +34,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, OrderEvent> orderEventKafkaTemplate() {
-        return new KafkaTemplate<>(orderEventProducerFactory());
+    public KafkaTemplate<String, TrxEvent > orderEventKafkaTemplate() {
+        return new KafkaTemplate<>(TrxEventProducerFactory());
     }
 }

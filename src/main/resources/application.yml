@@ -1,3 +1,24 @@
+server:
+  port: 8080
+
 spring:
   application:
     name: kafka-the-definitive-guide
+  kafka:
+    # producer가 붙을 kafka 서버 주소
+    bootstrap-servers: 127.0.0.1:9092
+    producer:
+      # Key 직렬화. java object -> Json
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        # Broker가 reader + ISR 팔로워까지 기록했을 때만 성공 응답
+        acks: all
+        # 멱등성 활성화 -> retry에도 중복 요청 방지
+        enable.idempotence: true
+        # 5ms 동안 메세지를 모아서 한번에 전송 -> TPS 증가
+        linger.ms: 5
+        # batch buffer size -> 한 partition당 모을 수잇는 메세지 최대 바이트 수
+        batch.size: 32768
+        # 전송 시간 한도
+        delivery.timeout.ms: 120000
