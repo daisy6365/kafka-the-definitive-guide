@@ -14,8 +14,8 @@ import org.springframework.stereotype.Component;
 public class TrxEventProducer {
     private final KafkaTemplate<String, TrxEvent> kafkaTemplate;
 
-    // topic이름은 property로 가져옴
-    @Value("${kafka.topic.txn-created:txn-created.v1}")
+    // topic 이름은 property로 가져옴
+    @Value("${kafka.topic}")
     private String topic;
 
     public void send(String key, TrxEvent trxEvent) {

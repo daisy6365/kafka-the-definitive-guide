@@ -20,4 +20,16 @@ public class TrxEvent {
     private String currency;
     private Instant timestamp;
     private String description;
+
+    public TrxEvent from(String trxId, String accountId, TrxType type, BigDecimal amount, String currency, Instant timestamp, String description) {
+        TrxEvent event = new TrxEvent();
+        event.setTrxId(trxId);
+        event.setAccountId(accountId);
+        event.setType(type);
+        event.setAmount(amount);
+        event.setCurrency(currency);
+        event.setTimestamp(timestamp);
+        event.setDescription(description);
+        return event;
+    }
 }
