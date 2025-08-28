@@ -30,6 +30,12 @@ public class KafkaConfig {
         props.put(ProducerConfig.LINGER_MS_CONFIG, 5);
         props.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
         props.put(ProducerConfig.COMPRESSION_TYPE_CONFIG, "gzip");
+
+        /**
+         * DefaultKafkaProducerFactory
+         * KafkaProducer를 만들어주는 공장 클래스
+         * 직접 new KafkaProducer를 하지 않고, 스프링이 생성,라이프사이클, 재사용을 맡도록 함
+         */
         return new DefaultKafkaProducerFactory<>(props);
     }
 
