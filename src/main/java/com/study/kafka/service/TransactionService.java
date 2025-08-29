@@ -15,12 +15,10 @@ public class TransactionService {
 
     public void create(TrxRequest request){
         String trxId = "";
-        TrxEvent event = new TrxEvent();
-        event.from(trxId, request.getAccountId(), request.getType(), request.getAmount(), request.getCurrency(),
+        TrxEvent event = TrxEvent.from(trxId, request.getAccountId(), request.getType(), request.getAmount(), request.getCurrency(),
                 Instant.now(), request.getDescription());
 
-        trxEventProducer.send(request.getAccountId(), event);
-
+        trxEventProducer.sendAsync(request.getAccountId(), event);
 
     }
 }

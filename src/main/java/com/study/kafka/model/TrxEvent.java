@@ -21,7 +21,7 @@ public class TrxEvent {
     private Instant timestamp;
     private String description;
 
-    public TrxEvent from(String trxId, String accountId, TrxType type, BigDecimal amount, String currency, Instant timestamp, String description) {
+    public static TrxEvent from(String trxId, String accountId, TrxType type, BigDecimal amount, String currency, Instant timestamp, String description) {
         TrxEvent event = new TrxEvent();
         event.setTrxId(trxId);
         event.setAccountId(accountId);
