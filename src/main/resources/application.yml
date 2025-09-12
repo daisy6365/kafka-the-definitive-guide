@@ -4,6 +4,15 @@ server:
 spring:
   application:
     name: kafka-the-definitive-guide
+  datasource:
+    url: jdbc:mysql://localhost:3306/kafka
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
   kafka:
     # producer가 붙을 kafka 서버 주소
     bootstrap-servers: 127.0.0.1:9092
