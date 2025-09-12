@@ -1,13 +1,13 @@
 package com.study.kafka.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.study.kafka.entity.common.AccountStatus;
+import com.study.kafka.entity.common.BaseEntity;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Entity
@@ -19,10 +19,11 @@ public class Account extends BaseEntity {
     private Long accountId;
     private Long customerId;
     private String accountNo;
-    private String balance;
+    private BigDecimal balance;
     private String currency;
     private String accountType;
-    private String status;
+    @Enumerated(EnumType.STRING)
+    private AccountStatus status;
     private LocalDate openDate;
 
 }

@@ -1,4 +1,4 @@
-package com.study.kafka.entity;
+package com.study.kafka.entity.common;
 
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
@@ -22,7 +22,7 @@ public abstract class BaseEntity {
     private String createdBy;
 
     @LastModifiedDate
-    private LocalDateTime updateAt;
+    private LocalDateTime updatedAt;
     @LastModifiedBy
     private String updatedBy;
 }

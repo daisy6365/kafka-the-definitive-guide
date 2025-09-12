@@ -1,9 +1,8 @@
 package com.study.kafka.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import com.study.kafka.entity.common.BaseEntity;
+import com.study.kafka.entity.common.Status;
+import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +13,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AlertLog extends BaseEntity{
+public class AlertLog extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long alertLogId;
@@ -24,6 +23,7 @@ public class AlertLog extends BaseEntity{
     private String currency;
     private LocalDateTime trxDate;
     private String trxChannel;
+    @Enumerated(EnumType.STRING)
     private Status status;
     private String errorCode;
     private String errorMessage;

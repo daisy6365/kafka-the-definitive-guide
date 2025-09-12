@@ -1,5 +1,6 @@
 package com.study.kafka.entity;
 
+import com.study.kafka.entity.common.BaseEntity;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -13,11 +14,13 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class AlertInbox extends BaseEntity{
+public class AlertInbox extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long alertInboxId;
     private Long accountId;
+    // 비즈니스 멱등키
+    private String eventId;
     private String topic;
     private Long partitionNo;
     private Long offsetNo;

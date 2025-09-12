@@ -1,4 +1,4 @@
-package com.study.kafka.entity;
+package com.study.kafka.entity.common;
 
 public enum Status {
     SUCCESS,
