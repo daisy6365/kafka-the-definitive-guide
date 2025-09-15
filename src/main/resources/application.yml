@@ -31,4 +31,4 @@ spring:
         batch.size: 32768
         # 전송 시간 한도
         delivery.timeout.ms: 120000
-    topic: trx-created
+    topic: trx-created.v1

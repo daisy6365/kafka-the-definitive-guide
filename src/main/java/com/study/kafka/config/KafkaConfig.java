@@ -40,7 +40,7 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, TrxEvent > orderEventKafkaTemplate() {
+    public KafkaTemplate<String, TrxEvent > trxEventKafkaTemplate() {
         return new KafkaTemplate<>(TrxEventProducerFactory());
     }
 }
