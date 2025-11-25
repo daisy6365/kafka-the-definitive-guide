@@ -10,6 +10,11 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalTime;
 
+/**
+ * 계좌별 알림기준을 저장하는 정책 테이블
+ * - 임계치
+ * - 허용 시간대등
+ */
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
