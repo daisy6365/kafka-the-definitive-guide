@@ -1,0 +1,65 @@
+package com.study.kafka.consumer;
+
+import com.study.kafka.model.TrxEvent;
+import org.springframework.kafka.annotation.KafkaListener;
+import org.springframework.kafka.annotation.TopicPartition;
+import org.springframework.kafka.support.Acknowledgment;
+import org.springframework.messaging.handler.annotation.Header;
+import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.kafka.support.KafkaHeaders;
+import org.springframework.stereotype.Component;
+
+@Component
+public class AlertListener {
+
+    /**
+     * 구독 (1)
+     * topic 이름으로 구독
+     */
+    @KafkaListener(
+            topics = "txn-created.v1",
+            containerFactory = "kafkaListenerContainerFactory",
+            groupId = "alert-service"
+    )
+    public void onMessage(@Payload TrxEvent event,
+                          @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+                          @Header(KafkaHeaders.OFFSET) long offset,
+                          Acknowledgment ack) {
+        // send sms/push
+
+        ack.acknowledge();
+    }
+
+    /**
+     * 구독 (2)
+     * 패턴으로 구독
+     */
+    @KafkaListener(
+            topicPattern = "",
+            containerFactory = "kafkaListnerContainerFactory",
+            groupId = "alert-service"
+    )
+    public void onMessageByPattern(@Payload TrxEvent event,
+                                   Acknowledgment ack) {
+        ack.acknowledge();
+    }
+
+    /**
+     * 구독 (3)
+     * 특정 파티션에 고정할당
+     * -> 리밸런스 없이 직접 제어
+     * -> 스케일링 자동화 기능 사라짐
+     */
+    @KafkaListener(
+            topicPartitions = {
+                    @TopicPartition(topic = "txn-created.v1",
+                    partitions =  {"0", "1"})
+            },
+            containerFactory = "kafkaListnerContainerFactory",
+            groupId = "alert-service"
+    )
+    public void onMessageFixed(@Payload TrxEvent event,
+                               Acknowledgment ack) {
+        ack.acknowledge();
+    }
+}
