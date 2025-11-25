@@ -18,7 +18,7 @@ public class AlertPolicy extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long alertPolicyId;
     private Long accountId;
-    private BigDecimal thresholdAmount;
+    private BigDecimal thresholdAmount = BigDecimal.ZERO;
     private String currency;
     @Enumerated(EnumType.STRING)
     private YN isPush;

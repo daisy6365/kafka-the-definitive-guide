@@ -19,7 +19,7 @@ public class AlertLog extends BaseEntity {
     private Long alertLogId;
     private Long accountId;
     private Long alertInboxId;
-    private BigDecimal amount;
+    private BigDecimal amount = BigDecimal.ZERO;
     private String currency;
     private LocalDateTime trxDate;
     private String trxChannel;

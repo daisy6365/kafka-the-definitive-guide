@@ -19,7 +19,7 @@ public class Account extends BaseEntity {
     private Long accountId;
     private Long customerId;
     private String accountNo;
-    private BigDecimal balance;
+    private BigDecimal balance = BigDecimal.ZERO;
     private String currency;
     private String accountType;
     @Enumerated(EnumType.STRING)
