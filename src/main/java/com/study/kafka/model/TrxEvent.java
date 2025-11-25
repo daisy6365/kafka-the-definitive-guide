@@ -15,7 +15,7 @@ import java.time.Instant;
 public class TrxEvent {
     private String eventId; // kafka 이벤트 식별자 -> 멱등성, 재처리 방지
     private String trxId; // 거래 ID
-    private String accountId; // 계좌 ID
+    private Long accountId; // 계좌 ID
     private TrxType type; // 차대변 구분 (입출금이라고도 함)
     private BigDecimal amount; // 거래 금액
     private String currency; // 통화 코드
@@ -23,7 +23,7 @@ public class TrxEvent {
     private String description; // 설명
     private BigDecimal balance; // 거래 후 잔액
 
-    public static TrxEvent from(String trxId, String accountId, TrxType type, BigDecimal amount, String currency, Instant timestamp, String description) {
+    public static TrxEvent from(String trxId, Long accountId, TrxType type, BigDecimal amount, String currency, Instant timestamp, String description) {
         TrxEvent event = new TrxEvent();
         event.setTrxId(trxId);
         event.setAccountId(accountId);
