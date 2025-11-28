@@ -38,3 +38,8 @@ spring:
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       enable-auto-commit: false
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      connect-timeout: 3000 # ms
