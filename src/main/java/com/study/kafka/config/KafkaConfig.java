@@ -2,6 +2,7 @@ package com.study.kafka.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.kafka.model.TrxEvent;
+import lombok.RequiredArgsConstructor;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -19,10 +20,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 @Configuration
+@RequiredArgsConstructor
 public class KafkaConfig {
     @Value("${spring.kafka.bootstrap-servers}")
     private String kafkaBootstrapServer;
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private final ObjectMapper objectMapper;
 
     @Bean
     public ProducerFactory<String, TrxEvent > TrxEventProducerFactory() {
