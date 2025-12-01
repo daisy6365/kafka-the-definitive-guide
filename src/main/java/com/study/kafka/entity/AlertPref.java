@@ -21,6 +21,4 @@ public class AlertPref extends BaseEntity {
     private Long alertPrefId;
     private Long accountId;
     private String pushToken;
-    private String phoneNumber;
-
 }

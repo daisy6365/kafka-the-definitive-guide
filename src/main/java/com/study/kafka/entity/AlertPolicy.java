@@ -27,8 +27,6 @@ public class AlertPolicy extends BaseEntity {
     private String currency;
     @Enumerated(EnumType.STRING)
     private YN isPush;
-    @Enumerated(EnumType.STRING)
-    private YN isSMS;
     private LocalTime alertTimeStart;
     private LocalTime alertTimeEnd;
 }
