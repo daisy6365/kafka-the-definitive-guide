@@ -1,6 +1,8 @@
 package com.study.kafka.consumer;
 
 import com.study.kafka.model.TrxEvent;
+import com.study.kafka.service.AlertService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.kafka.support.Acknowledgment;
@@ -10,7 +12,9 @@ import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Component;
 
 @Component
+@RequiredArgsConstructor
 public class AlertListener {
+    private final AlertService alertService;
 
     /**
      * 구독 (1)
@@ -26,6 +30,7 @@ public class AlertListener {
                           @Header(KafkaHeaders.OFFSET) long offset,
                           Acknowledgment ack) {
         // send sms/push
+        alertService.sendAlert(event);
 
         ack.acknowledge();
     }
