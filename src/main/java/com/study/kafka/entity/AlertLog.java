@@ -22,7 +22,6 @@ public class AlertLog extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long alertLogId;
     private Long accountId;
-    private Long alertInboxId;
     private BigDecimal amount = BigDecimal.ZERO;
     private String currency;
     private LocalDateTime trxDate;
@@ -33,12 +32,11 @@ public class AlertLog extends BaseEntity {
     private String errorCode;
     private String errorMessage;
 
-    public static AlertLog create(Long accountId, Long alertInboxId, BigDecimal amount, String currency,
+    public static AlertLog create(Long accountId, BigDecimal amount, String currency,
                                          LocalDateTime trxDate, Status status) {
         AlertLog alertLog = new AlertLog();
 
         alertLog.accountId = accountId;
-        alertLog.alertInboxId = alertInboxId;
         alertLog.amount = amount;
         alertLog.currency = currency;
         alertLog.trxDate = trxDate;
@@ -48,9 +46,9 @@ public class AlertLog extends BaseEntity {
         return alertLog;
     }
 
-    public AlertLog createFailed(Long accountId, Long alertInboxId, BigDecimal amount, String currency,
+    public static AlertLog createFailed(Long accountId, BigDecimal amount, String currency,
                                  LocalDateTime trxDate, Status status, String errorCode, String errorMessage) {
-        AlertLog alertLog = create(accountId, alertInboxId, amount, currency, trxDate, status);
+        AlertLog alertLog = create(accountId, amount, currency, trxDate, status);
 
         alertLog.errorCode = errorCode;
         alertLog.errorMessage = errorMessage;
