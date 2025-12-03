@@ -21,7 +21,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 
-import static com.study.kafka.exception.code.ErrorCode.*;
+import static com.study.kafka.exception.ErrorCode.*;
 
 @Slf4j
 @Service

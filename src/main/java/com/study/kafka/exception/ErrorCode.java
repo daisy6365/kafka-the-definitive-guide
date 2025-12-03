@@ -1,4 +1,4 @@
-package com.study.kafka.exception.code;
+package com.study.kafka.exception;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
