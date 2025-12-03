@@ -6,7 +6,10 @@ import com.study.kafka.entity.AlertPolicy;
 import com.study.kafka.entity.AlertPref;
 import com.study.kafka.entity.common.Status;
 import com.study.kafka.model.TrxEvent;
-import com.study.kafka.repository.*;
+import com.study.kafka.repository.AccountRepository;
+import com.study.kafka.repository.AlertLogRepository;
+import com.study.kafka.repository.AlertPolicyRepository;
+import com.study.kafka.repository.AlertPrefRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +18,10 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
+
+import static com.study.kafka.exception.code.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -47,8 +53,7 @@ public class AlertService {
         // 멱등성 체크
         if(Boolean.FALSE.equals(isIdempotented(redisKey))){
             log.info("[FAILED] 멱등성 체크 통과 실패. 중복 이벤트 = {}", eventId);
-            // todo: error코드 구조 구현
-//            saveFailLog()
+            saveFailLog(event, IDEMPOTENCY_VIOLATION.getCode(), IDEMPOTENCY_VIOLATION.getMessage());
             return;
         }
 
@@ -57,6 +62,7 @@ public class AlertService {
                 .orElse(null);
         if(account == null){
             log.info("[FAILED] 알림처리 불가 -> 해당 계좌 존재하지 않음. account = {}", accountId);
+            saveFailLog(event, ACCOUNT_NOT_FOUND.getCode(), ACCOUNT_NOT_FOUND.getMessage());
             return;
         }
 
@@ -64,6 +70,7 @@ public class AlertService {
         AlertPolicy alertPolicy = alertPolicyRepository.findByAccountId(accountId);
         if(alertPolicy == null){
             log.info("[FAILED] 알림처리 불가 -> 정책 미존재. account = {}", accountId);
+            saveFailLog(event, POLICY_NOT_FOUND.getCode(), POLICY_NOT_FOUND.getMessage());
             return;
         }
         if(Boolean.FALSE.equals(checkPolicy(event, alertPolicy))){
@@ -74,6 +81,7 @@ public class AlertService {
         AlertPref alertPref = alertPrefRepository.findByAccountId(accountId);
         if(alertPref == null){
             log.info("[FAILED] 알림처리 불가 -> 연락수단 미존재. account = {}", accountId);
+            saveFailLog(event, PREF_NOT_FOUND.getCode(), PREF_NOT_FOUND.getMessage());
             return;
         }
 
@@ -98,11 +106,14 @@ public class AlertService {
         // 정책 1 - 임계금액 체크
         if(event.getAmount().compareTo(alertPolicy.getThresholdAmount()) < 0){
             log.info("[FAILED] 알림처리 불가 -> 임계 금액 미달. account = {}", alertPolicy.getAccountId());
+            saveFailLog(event, POLICY_THRESHOLD_NOT_MET.getCode(), POLICY_THRESHOLD_NOT_MET.getMessage());
             return Boolean.FALSE;
         }
 
         // 정책 2- 알림허용 시간대 체크
         if(!isAllowedTime(alertPolicy)){
+            log.info("[FAILED] 알림처리 불가 -> 알림허용 시간대 아님. account = {}", alertPolicy.getAccountId());
+            saveFailLog(event, POLICY_TIME_NOT_ALLOWED.getCode(), POLICY_TIME_NOT_ALLOWED.getMessage());
             return Boolean.FALSE;
         }
 
@@ -118,7 +129,7 @@ public class AlertService {
         LocalTime alertTimeEnd = alertPolicy.getAlertTimeEnd();
 
         // 현재 시각이 알림허용시작 보다 이후, 알림허용종료 보다 이전
-        return !now.isBefore(alertTimeStart) && now.isAfter(alertTimeEnd);
+        return !now.isBefore(alertTimeStart) && !now.isAfter(alertTimeEnd);
     }
 
     // 예시
@@ -126,14 +137,14 @@ public class AlertService {
 
     private void saveAlertLog(TrxEvent event) {
         AlertLog alertLog = AlertLog.create(event.getAccountId(), event.getAmount(), event.getCurrency(),
-                LocalDateTime.from(event.getTimestamp()), Status.SUCCESS);
+                LocalDateTime.ofInstant(event.getTimestamp(), ZoneId.systemDefault()), Status.SUCCESS);
 
         alertLogRepository.save(alertLog);
     }
 
     private void saveFailLog(TrxEvent event, String errorCode, String errorMessage){
         AlertLog alertLog = AlertLog.createFailed(event.getAccountId(), event.getAmount(), event.getCurrency(),
-                LocalDateTime.from(event.getTimestamp()), Status.FAILURE, errorCode, errorMessage);
+                LocalDateTime.ofInstant(event.getTimestamp(), ZoneId.systemDefault()), Status.FAILURE, errorCode, errorMessage);
         alertLogRepository.save(alertLog);
     }
 }
