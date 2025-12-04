@@ -26,4 +26,12 @@ public class Account extends BaseEntity {
     private AccountStatus status;
     private LocalDate openDate;
 
+    public BigDecimal withdraw(BigDecimal amount) {
+        return this.balance.subtract(amount);
+    }
+
+    public BigDecimal deposit(BigDecimal amount) {
+        return this.balance.add(amount);
+    }
+
 }

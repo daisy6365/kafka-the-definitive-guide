@@ -1,0 +1,60 @@
+package com.study.kafka.producer.service;
+
+import com.study.kafka.common.exception.BizException;
+import com.study.kafka.common.exception.ErrorCode;
+import com.study.kafka.common.type.TrxType;
+import com.study.kafka.common.util.IdGeneratorUtil;
+import com.study.kafka.entity.Account;
+import com.study.kafka.producer.TrxEventProducer;
+import com.study.kafka.producer.model.TrxProducerEvent;
+import com.study.kafka.producer.model.TrxRequest;
+import com.study.kafka.repository.AccountRepository;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.time.Instant;
+
+import static com.study.kafka.common.exception.ErrorCode.*;
+
+@Service
+@RequiredArgsConstructor
+public class TransactionService {
+    private final TrxEventProducer trxEventProducer;
+    private final AccountRepository accountRepository;
+
+    @Transactional
+    public void create(TrxRequest request){
+        Account account = accountRepository.findById(request.getAccountId())
+                .orElseThrow(() -> new BizException(ACCOUNT_NOT_FOUND));
+
+        if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new BizException(INVALID_AMOUNT);
+        }
+
+        BigDecimal balance = BigDecimal.ZERO;
+        if(request.getType() == TrxType.CREDIT){
+            // 잔액 감소
+            if(account.getBalance().compareTo(request.getAmount()) < 0){
+                throw new BizException(INSUFFICIENT_BALANCE);
+            }
+            balance = account.withdraw(request.getAmount());
+        } else if (request.getType() == TrxType.DEBIT) {
+            // 잔액 증가
+            balance = account.deposit(request.getAmount());
+        }
+        else {
+            throw new BizException(INVALID_TRANSACTION_TYPE);
+        }
+
+        accountRepository.save(account);
+
+        String eventId = IdGeneratorUtil.generateEventId();
+        String trxId = IdGeneratorUtil.generateTrxId();
+        TrxProducerEvent event = TrxProducerEvent.from(eventId, trxId, request.getAccountId(), request.getType(),
+                request.getAmount(), request.getCurrency(), Instant.now(), request.getDescription(), balance);
+
+        trxEventProducer.sendAsync(request.getAccountId(), event);
+    }
+}

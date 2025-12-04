@@ -1,6 +1,6 @@
 package com.study.kafka.producer;
 
-import com.study.kafka.model.TrxEvent;
+import com.study.kafka.producer.model.TrxProducerEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;
@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit;
 @Component
 @RequiredArgsConstructor
 public class TrxEventProducer {
-    private final KafkaTemplate<String, TrxEvent> kafkaTemplate;
+    private final KafkaTemplate<String, TrxProducerEvent> kafkaTemplate;
 
     // topic 이름은 property로 가져옴
     @Value("${spring.kafka.topic}")
@@ -30,7 +30,7 @@ public class TrxEventProducer {
      */
 
     // 비동기 전송
-    public void sendAsync(Long key, TrxEvent trxEvent) {
+    public void sendAsync(Long key, TrxProducerEvent trxEvent) {
         /**
          * Key : 고객 계좌정보
          * -> 고객 계좌정보를 기준으로 파티션 진행
@@ -43,15 +43,17 @@ public class TrxEventProducer {
                     }
                     else {
                         RecordMetadata metadata = result.getRecordMetadata();
+                        log.info("ASYNC produced. eventId={} trxId={} topic={} partition={} offset={}",
+                                trxEvent.getEventId(), trxEvent.getTrxId(), metadata.topic(), metadata.partition(), metadata.offset());
                         log.info("ASYNC produced. {}-{} offset={} key={}",  metadata.topic(), metadata.partition(), metadata.offset(), key);
                     }
                 });
     }
 
     // 동기 전송
-    public void sendSync(String key, TrxEvent trxEvent) {
+    public void sendSync(String key, TrxProducerEvent trxEvent) {
         try{
-            SendResult<String, TrxEvent> result = kafkaTemplate.send(topic, key, trxEvent).get(3, TimeUnit.SECONDS);
+            SendResult<String, TrxProducerEvent> result = kafkaTemplate.send(topic, key, trxEvent).get(3, TimeUnit.SECONDS);
             RecordMetadata metadata = result.getRecordMetadata();
             log.info("SYNC produced. {}-{} offset={} key={}",  metadata.topic(), metadata.partition(), metadata.offset(), key);
         } catch (Exception e) {
