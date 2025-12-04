@@ -1,4 +1,4 @@
-package com.study.kafka.model;
+package com.study.kafka.common.type;
 
 public enum TrxType {
     DEBIT, // 차변

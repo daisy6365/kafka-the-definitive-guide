@@ -1,5 +1,6 @@
-package com.study.kafka.model;
+package com.study.kafka.producer.model;
 
+import com.study.kafka.common.type.TrxType;
 import lombok.Getter;
 
 import java.math.BigDecimal;

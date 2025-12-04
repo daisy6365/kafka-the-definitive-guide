@@ -1,4 +1,4 @@
-package com.study.kafka.config;
+package com.study.kafka.common.config;
 
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.context.annotation.Bean;
