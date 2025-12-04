@@ -33,11 +33,6 @@ spring:
         delivery.timeout.ms: 120000
         counting.interceptor.window.size.ms: 1000
     topic: trx-created.v1
-    consumer:
-      group-id: alert-service
-      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-      enable-auto-commit: false
   data:
     redis:
       host: localhost

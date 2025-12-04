@@ -1,18 +1,15 @@
-package com.study.kafka.model;
+package com.study.kafka.consumer.model;
 
-import lombok.AllArgsConstructor;
+import com.study.kafka.common.type.TrxType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.Instant;
 
 @Getter
-@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-public class TrxEvent {
+public class TrxConsumerEvent {
     private String eventId; // kafka 이벤트 식별자 -> 멱등성, 재처리 방지
     private String trxId; // 거래 ID
     private Long accountId; // 계좌 ID
@@ -22,16 +19,4 @@ public class TrxEvent {
     private Instant timestamp; // 거래 timestamp
     private String description; // 설명
     private BigDecimal balance; // 거래 후 잔액
-
-    public static TrxEvent from(String trxId, Long accountId, TrxType type, BigDecimal amount, String currency, Instant timestamp, String description) {
-        TrxEvent event = new TrxEvent();
-        event.setTrxId(trxId);
-        event.setAccountId(accountId);
-        event.setType(type);
-        event.setAmount(amount);
-        event.setCurrency(currency);
-        event.setTimestamp(timestamp);
-        event.setDescription(description);
-        return event;
-    }
 }

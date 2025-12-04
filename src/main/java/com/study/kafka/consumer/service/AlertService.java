@@ -1,11 +1,12 @@
-package com.study.kafka.service;
+package com.study.kafka.consumer.service;
 
+import com.study.kafka.common.exception.BizException;
 import com.study.kafka.entity.Account;
 import com.study.kafka.entity.AlertLog;
 import com.study.kafka.entity.AlertPolicy;
 import com.study.kafka.entity.AlertPref;
 import com.study.kafka.entity.common.Status;
-import com.study.kafka.model.TrxEvent;
+import com.study.kafka.consumer.model.TrxConsumerEvent;
 import com.study.kafka.repository.AccountRepository;
 import com.study.kafka.repository.AlertLogRepository;
 import com.study.kafka.repository.AlertPolicyRepository;
@@ -21,7 +22,7 @@ import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.concurrent.TimeUnit;
 
-import static com.study.kafka.exception.ErrorCode.*;
+import static com.study.kafka.common.exception.ErrorCode.*;
 
 @Slf4j
 @Service
@@ -45,7 +46,7 @@ public class AlertService {
      * 5) 알림 로그 저장
      * @param event
      */
-    public void sendAlert(TrxEvent event){
+    public void sendAlert(TrxConsumerEvent event){
         String eventId = event.getEventId();
         String redisKey = KEY_PREFIX + eventId;
         Long accountId = event.getAccountId();
@@ -53,8 +54,7 @@ public class AlertService {
         // 멱등성 체크
         if(Boolean.FALSE.equals(isIdempotented(redisKey))){
             log.info("[FAILED] 멱등성 체크 통과 실패. 중복 이벤트 = {}", eventId);
-            saveFailLog(event, IDEMPOTENCY_VIOLATION.getCode(), IDEMPOTENCY_VIOLATION.getMessage());
-            return;
+            throw new BizException(IDEMPOTENCY_VIOLATION);
         }
 
         // 계좌 조회
@@ -62,27 +62,22 @@ public class AlertService {
                 .orElse(null);
         if(account == null){
             log.info("[FAILED] 알림처리 불가 -> 해당 계좌 존재하지 않음. account = {}", accountId);
-            saveFailLog(event, ACCOUNT_NOT_FOUND.getCode(), ACCOUNT_NOT_FOUND.getMessage());
-            return;
+            throw new BizException(ACCOUNT_NOT_FOUND);
         }
 
         // 정책 조회
         AlertPolicy alertPolicy = alertPolicyRepository.findByAccountId(accountId);
         if(alertPolicy == null){
             log.info("[FAILED] 알림처리 불가 -> 정책 미존재. account = {}", accountId);
-            saveFailLog(event, POLICY_NOT_FOUND.getCode(), POLICY_NOT_FOUND.getMessage());
-            return;
+            throw new BizException(POLICY_NOT_FOUND);
         }
-        if(Boolean.FALSE.equals(checkPolicy(event, alertPolicy))){
-            return;
-        }
+        checkPolicy(event, alertPolicy);
 
         // 연락수단 조회
         AlertPref alertPref = alertPrefRepository.findByAccountId(accountId);
         if(alertPref == null){
             log.info("[FAILED] 알림처리 불가 -> 연락수단 미존재. account = {}", accountId);
-            saveFailLog(event, PREF_NOT_FOUND.getCode(), PREF_NOT_FOUND.getMessage());
-            return;
+            throw new BizException(PREF_NOT_FOUND);
         }
 
         // 알림 발송
@@ -102,22 +97,18 @@ public class AlertService {
     }
 
 
-    private Boolean checkPolicy(TrxEvent event, AlertPolicy alertPolicy){
+    private void checkPolicy(TrxConsumerEvent event, AlertPolicy alertPolicy){
         // 정책 1 - 임계금액 체크
         if(event.getAmount().compareTo(alertPolicy.getThresholdAmount()) < 0){
             log.info("[FAILED] 알림처리 불가 -> 임계 금액 미달. account = {}", alertPolicy.getAccountId());
-            saveFailLog(event, POLICY_THRESHOLD_NOT_MET.getCode(), POLICY_THRESHOLD_NOT_MET.getMessage());
-            return Boolean.FALSE;
+            throw new BizException(POLICY_THRESHOLD_NOT_MET);
         }
 
         // 정책 2- 알림허용 시간대 체크
         if(!isAllowedTime(alertPolicy)){
             log.info("[FAILED] 알림처리 불가 -> 알림허용 시간대 아님. account = {}", alertPolicy.getAccountId());
-            saveFailLog(event, POLICY_TIME_NOT_ALLOWED.getCode(), POLICY_TIME_NOT_ALLOWED.getMessage());
-            return Boolean.FALSE;
+            throw new BizException(POLICY_TIME_NOT_ALLOWED);
         }
-
-        return Boolean.TRUE;
     }
 
     private boolean isAllowedTime(AlertPolicy alertPolicy) {
@@ -133,16 +124,16 @@ public class AlertService {
     }
 
     // 예시
-    private void firebaseFCM(TrxEvent event){}
+    private void firebaseFCM(TrxConsumerEvent event){}
 
-    private void saveAlertLog(TrxEvent event) {
+    private void saveAlertLog(TrxConsumerEvent event) {
         AlertLog alertLog = AlertLog.create(event.getAccountId(), event.getAmount(), event.getCurrency(),
                 LocalDateTime.ofInstant(event.getTimestamp(), ZoneId.systemDefault()), Status.SUCCESS);
 
         alertLogRepository.save(alertLog);
     }
 
-    private void saveFailLog(TrxEvent event, String errorCode, String errorMessage){
+    public void saveFailLog(TrxConsumerEvent event, String errorCode, String errorMessage){
         AlertLog alertLog = AlertLog.createFailed(event.getAccountId(), event.getAmount(), event.getCurrency(),
                 LocalDateTime.ofInstant(event.getTimestamp(), ZoneId.systemDefault()), Status.FAILURE, errorCode, errorMessage);
         alertLogRepository.save(alertLog);

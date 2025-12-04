@@ -1,8 +1,10 @@
 package com.study.kafka.consumer;
 
-import com.study.kafka.model.TrxEvent;
-import com.study.kafka.service.AlertService;
+import com.study.kafka.common.exception.BizException;
+import com.study.kafka.consumer.model.TrxConsumerEvent;
+import com.study.kafka.consumer.service.AlertService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.kafka.support.Acknowledgment;
@@ -11,6 +13,7 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
 public class AlertListener {
@@ -25,14 +28,23 @@ public class AlertListener {
             containerFactory = "kafkaListenerContainerFactory",
             groupId = "alert-service"
     )
-    public void onMessage(@Payload TrxEvent event,
+    public void onMessage(@Payload TrxConsumerEvent event,
                           @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
                           @Header(KafkaHeaders.OFFSET) long offset,
                           Acknowledgment ack) {
         // send sms/push
-        alertService.sendAlert(event);
-
-        ack.acknowledge();
+        log.info("Consumed eventId={} partition={} offset={}", event.getEventId(), partition, offset);
+        try{
+            alertService.sendAlert(event);
+            ack.acknowledge();
+        }
+        catch (BizException e){
+            alertService.saveFailLog(event, e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+            ack.acknowledge();
+        }
+        catch (Exception e){
+            log.error("[FATAL] Unexpected error while processing event {}", event, e);
+        }
     }
 
     /**
@@ -41,10 +53,10 @@ public class AlertListener {
      */
     @KafkaListener(
             topicPattern = "",
-            containerFactory = "kafkaListnerContainerFactory",
+            containerFactory = "kafkaListenerContainerFactory",
             groupId = "alert-service"
     )
-    public void onMessageByPattern(@Payload TrxEvent event,
+    public void onMessageByPattern(@Payload TrxConsumerEvent event,
                                    Acknowledgment ack) {
         ack.acknowledge();
     }
@@ -60,10 +72,10 @@ public class AlertListener {
                     @TopicPartition(topic = "txn-created.v1",
                     partitions =  {"0", "1"})
             },
-            containerFactory = "kafkaListnerContainerFactory",
+            containerFactory = "kafkaListenerContainerFactory",
             groupId = "alert-service"
     )
-    public void onMessageFixed(@Payload TrxEvent event,
+    public void onMessageFixed(@Payload TrxConsumerEvent event,
                                Acknowledgment ack) {
         ack.acknowledge();
     }
