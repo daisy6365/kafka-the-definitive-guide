@@ -1,6 +1,7 @@
 package com.study.kafka.consumer.service;
 
 import com.study.kafka.common.exception.BizException;
+import com.study.kafka.consumer.model.AlertRequest;
 import com.study.kafka.entity.Account;
 import com.study.kafka.entity.AlertLog;
 import com.study.kafka.entity.AlertPolicy;
@@ -39,17 +40,17 @@ public class AlertService {
     private static final String KEY_PREFIX = "alert:idem:";
 
     /**
-     * 1) kafka에서 event 수신받음
+     * 1) kafka에서 request 수신받음
      * 2) 비즈니스로직 작성
      * 3) AlertInbox 고객에게 보여줄 알림함
      * 4) 알림 발송
      * 5) 알림 로그 저장
-     * @param event
+     * @param request
      */
-    public void sendAlert(TrxConsumerEvent event){
-        String eventId = event.getEventId();
+    public void sendAlert(AlertRequest request){
+        String eventId = request.getEventId();
         String redisKey = KEY_PREFIX + eventId;
-        Long accountId = event.getAccountId();
+        Long accountId = request.getAccountId();
 
         // 멱등성 체크
         if(Boolean.FALSE.equals(isIdempotented(redisKey))){
@@ -71,7 +72,7 @@ public class AlertService {
             log.info("[FAILED] 알림처리 불가 -> 정책 미존재. account = {}", accountId);
             throw new BizException(POLICY_NOT_FOUND);
         }
-        checkPolicy(event, alertPolicy);
+        checkPolicy(request, alertPolicy);
 
         // 연락수단 조회
         AlertPref alertPref = alertPrefRepository.findByAccountId(accountId);
@@ -81,10 +82,10 @@ public class AlertService {
         }
 
         // 알림 발송
-        firebaseFCM(event);
+        firebaseFCM(request);
 
         // 알림 로그 저장
-        saveAlertLog(event);
+        saveAlertLog(request);
 
         log.info("[SUCCESS] 알림처리 완료. eventId = {} ", eventId);
     }
@@ -97,9 +98,9 @@ public class AlertService {
     }
 
 
-    private void checkPolicy(TrxConsumerEvent event, AlertPolicy alertPolicy){
+    private void checkPolicy(AlertRequest request, AlertPolicy alertPolicy){
         // 정책 1 - 임계금액 체크
-        if(event.getAmount().compareTo(alertPolicy.getThresholdAmount()) < 0){
+        if(request.getAmount().compareTo(alertPolicy.getThresholdAmount()) < 0){
             log.info("[FAILED] 알림처리 불가 -> 임계 금액 미달. account = {}", alertPolicy.getAccountId());
             throw new BizException(POLICY_THRESHOLD_NOT_MET);
         }
@@ -124,18 +125,18 @@ public class AlertService {
     }
 
     // 예시
-    private void firebaseFCM(TrxConsumerEvent event){}
+    private void firebaseFCM(AlertRequest request){}
 
-    private void saveAlertLog(TrxConsumerEvent event) {
-        AlertLog alertLog = AlertLog.create(event.getAccountId(), event.getAmount(), event.getCurrency(),
-                LocalDateTime.ofInstant(event.getTimestamp(), ZoneId.systemDefault()), Status.SUCCESS);
+    private void saveAlertLog(AlertRequest request) {
+        AlertLog alertLog = AlertLog.create(request.getAccountId(), request.getAmount(), request.getCurrency(),
+                LocalDateTime.ofInstant(request.getTimestamp(), ZoneId.systemDefault()), Status.SUCCESS);
 
         alertLogRepository.save(alertLog);
     }
 
-    public void saveFailLog(TrxConsumerEvent event, String errorCode, String errorMessage){
-        AlertLog alertLog = AlertLog.createFailed(event.getAccountId(), event.getAmount(), event.getCurrency(),
-                LocalDateTime.ofInstant(event.getTimestamp(), ZoneId.systemDefault()), Status.FAILURE, errorCode, errorMessage);
+    public void saveFailLog(AlertRequest request, String errorCode, String errorMessage){
+        AlertLog alertLog = AlertLog.createFailed(request.getAccountId(), request.getAmount(), request.getCurrency(),
+                LocalDateTime.ofInstant(request.getTimestamp(), ZoneId.systemDefault()), Status.FAILURE, errorCode, errorMessage);
         alertLogRepository.save(alertLog);
     }
 }

@@ -1,6 +1,7 @@
 package com.study.kafka.consumer;
 
 import com.study.kafka.common.exception.BizException;
+import com.study.kafka.consumer.model.AlertRequest;
 import com.study.kafka.consumer.model.TrxConsumerEvent;
 import com.study.kafka.consumer.service.AlertService;
 import lombok.RequiredArgsConstructor;
@@ -35,11 +36,12 @@ public class AlertListener {
         // send sms/push
         log.info("Consumed eventId={} partition={} offset={}", event.getEventId(), partition, offset);
         try{
-            alertService.sendAlert(event);
+
+            alertService.sendAlert(AlertRequest.from(event));
             ack.acknowledge();
         }
         catch (BizException e){
-            alertService.saveFailLog(event, e.getErrorCode().getCode(), e.getErrorCode().getMessage());
+            alertService.saveFailLog(AlertRequest.from(event), e.getErrorCode().getCode(), e.getErrorCode().getMessage());
             ack.acknowledge();
         }
         catch (Exception e){
