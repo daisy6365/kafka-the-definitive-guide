@@ -25,7 +25,7 @@ public class AlertListener {
      * topic 이름으로 구독
      */
     @KafkaListener(
-            topics = "txn-created.v1",
+            topics = "trx-created.v1",
             containerFactory = "kafkaListenerContainerFactory",
             groupId = "alert-service"
     )
@@ -53,15 +53,15 @@ public class AlertListener {
      * 구독 (2)
      * 패턴으로 구독
      */
-    @KafkaListener(
-            topicPattern = "",
-            containerFactory = "kafkaListenerContainerFactory",
-            groupId = "alert-service"
-    )
-    public void onMessageByPattern(@Payload TrxConsumerEvent event,
-                                   Acknowledgment ack) {
-        ack.acknowledge();
-    }
+//    @KafkaListener(
+//            topicPattern = "",
+//            containerFactory = "kafkaListenerContainerFactory",
+//            groupId = "alert-service"
+//    )
+//    public void onMessageByPattern(@Payload TrxConsumerEvent event,
+//                                   Acknowledgment ack) {
+//        ack.acknowledge();
+//    }
 
     /**
      * 구독 (3)
@@ -69,16 +69,16 @@ public class AlertListener {
      * -> 리밸런스 없이 직접 제어
      * -> 스케일링 자동화 기능 사라짐
      */
-    @KafkaListener(
-            topicPartitions = {
-                    @TopicPartition(topic = "txn-created.v1",
-                    partitions =  {"0", "1"})
-            },
-            containerFactory = "kafkaListenerContainerFactory",
-            groupId = "alert-service"
-    )
-    public void onMessageFixed(@Payload TrxConsumerEvent event,
-                               Acknowledgment ack) {
-        ack.acknowledge();
-    }
+//    @KafkaListener(
+//            topicPartitions = {
+//                    @TopicPartition(topic = "txn-created.v1",
+//                    partitions =  {"0", "1"})
+//            },
+//            containerFactory = "kafkaListenerContainerFactory",
+//            groupId = "alert-service"
+//    )
+//    public void onMessageFixed(@Payload TrxConsumerEvent event,
+//                               Acknowledgment ack) {
+//        ack.acknowledge();
+//    }
 }

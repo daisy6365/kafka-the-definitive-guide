@@ -27,11 +27,12 @@ public class Account extends BaseEntity {
     private LocalDate openDate;
 
     public BigDecimal withdraw(BigDecimal amount) {
-        return this.balance.subtract(amount);
+        this.balance = this.balance.subtract(amount);
+        return this.balance;
     }
 
     public BigDecimal deposit(BigDecimal amount) {
-        return this.balance.add(amount);
+        this.balance = this.balance.add(amount);
+        return this.balance;
     }
-
 }

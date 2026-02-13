@@ -5,10 +5,9 @@ spring:
   application:
     name: kafka-the-definitive-guide
   datasource:
-    url: jdbc:mysql://localhost:3306/kafka
+    url: jdbc:mysql://localhost:3306/kafka?serverTimezone=UTC&useSSL=false
     username: root
     password: root
-    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: update

@@ -52,11 +52,11 @@ public class AlertService {
         String redisKey = KEY_PREFIX + eventId;
         Long accountId = request.getAccountId();
 
-        // 멱등성 체크
-        if(Boolean.FALSE.equals(isIdempotented(redisKey))){
-            log.info("[FAILED] 멱등성 체크 통과 실패. 중복 이벤트 = {}", eventId);
-            throw new BizException(IDEMPOTENCY_VIOLATION);
-        }
+//        // 멱등성 체크
+//        if(Boolean.FALSE.equals(isIdempotented(redisKey))){
+//            log.info("[FAILED] 멱등성 체크 통과 실패. 중복 이벤트 = {}", eventId);
+//            throw new BizException(IDEMPOTENCY_VIOLATION);
+//        }
 
         // 계좌 조회
         Account account = accountRepository.findById(accountId)
