@@ -1,5 +1,6 @@
 package com.study.kafka.entity;
 
+import com.study.kafka.common.type.TrxType;
 import com.study.kafka.entity.common.BaseEntity;
 import com.study.kafka.entity.common.Channel;
 import com.study.kafka.entity.common.Status;
@@ -22,6 +23,8 @@ public class AlertLog extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long alertLogId;
     private Long accountId;
+    @Enumerated(EnumType.STRING)
+    private TrxType trxType;
     private BigDecimal amount = BigDecimal.ZERO;
     private String currency;
     private LocalDateTime trxDate;
@@ -32,11 +35,12 @@ public class AlertLog extends BaseEntity {
     private String errorCode;
     private String errorMessage;
 
-    public static AlertLog create(Long accountId, BigDecimal amount, String currency,
+    public static AlertLog create(Long accountId, TrxType trxType, BigDecimal amount, String currency,
                                          LocalDateTime trxDate, Status status) {
         AlertLog alertLog = new AlertLog();
 
         alertLog.accountId = accountId;
+        alertLog.trxType = trxType;
         alertLog.amount = amount;
         alertLog.currency = currency;
         alertLog.trxDate = trxDate;
@@ -46,9 +50,9 @@ public class AlertLog extends BaseEntity {
         return alertLog;
     }
 
-    public static AlertLog createFailed(Long accountId, BigDecimal amount, String currency,
+    public static AlertLog createFailed(Long accountId, TrxType trxType, BigDecimal amount, String currency,
                                  LocalDateTime trxDate, Status status, String errorCode, String errorMessage) {
-        AlertLog alertLog = create(accountId, amount, currency, trxDate, status);
+        AlertLog alertLog = create(accountId, trxType, amount, currency, trxDate, status);
 
         alertLog.errorCode = errorCode;
         alertLog.errorMessage = errorMessage;

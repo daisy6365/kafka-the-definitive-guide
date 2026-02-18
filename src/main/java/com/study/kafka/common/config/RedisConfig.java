@@ -16,7 +16,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
  * - 빠르고 안정적임
  * @@ DB만으로 충분히 체크가능 하긴 함!!
  */
-//@Configuration
+@Configuration
 @EnableCaching // 나중에 캐시기능
 public class RedisConfig {
     /**

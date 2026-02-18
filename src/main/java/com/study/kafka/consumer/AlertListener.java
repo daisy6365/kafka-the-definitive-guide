@@ -35,8 +35,7 @@ public class AlertListener {
                           Acknowledgment ack) {
         // send sms/push
         log.info("Consumed eventId={} partition={} offset={}", event.getEventId(), partition, offset);
-        try{
-
+        try {
             alertService.sendAlert(AlertRequest.from(event));
             ack.acknowledge();
         }

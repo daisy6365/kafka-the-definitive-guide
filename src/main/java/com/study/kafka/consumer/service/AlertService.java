@@ -30,14 +30,13 @@ import static com.study.kafka.common.exception.ErrorCode.*;
 @Transactional
 @RequiredArgsConstructor
 public class AlertService {
+    private static final String KEY_PREFIX = "alert:idem:";
     private final StringRedisTemplate redisTemplate;
 
     private final AccountRepository accountRepository;
     private final AlertLogRepository alertLogRepository;
     private final AlertPolicyRepository alertPolicyRepository;
     private final AlertPrefRepository alertPrefRepository;
-
-    private static final String KEY_PREFIX = "alert:idem:";
 
     /**
      * 1) kafka에서 request 수신받음
@@ -52,11 +51,11 @@ public class AlertService {
         String redisKey = KEY_PREFIX + eventId;
         Long accountId = request.getAccountId();
 
-//        // 멱등성 체크
-//        if(Boolean.FALSE.equals(isIdempotented(redisKey))){
-//            log.info("[FAILED] 멱등성 체크 통과 실패. 중복 이벤트 = {}", eventId);
-//            throw new BizException(IDEMPOTENCY_VIOLATION);
-//        }
+        // 멱등성 체크
+        if(Boolean.FALSE.equals(isIdempotented(redisKey))){
+            log.info("[FAILED] 멱등성 체크 통과 실패. 중복 이벤트 = {}", eventId);
+            throw new BizException(IDEMPOTENCY_VIOLATION);
+        }
 
         // 계좌 조회
         Account account = accountRepository.findById(accountId)
@@ -83,20 +82,17 @@ public class AlertService {
 
         // 알림 발송
         firebaseFCM(request);
-
         // 알림 로그 저장
         saveAlertLog(request);
-
         log.info("[SUCCESS] 알림처리 완료. eventId = {} ", eventId);
     }
 
-
-
     private Boolean isIdempotented(String redisKey){
+        // 24시간 이내에 같은 redisKey가 들어오면 중복으로 인지 -> false 반환
+        // setIfAbsent으로 멱등토큰획득
         return redisTemplate.opsForValue()
                 .setIfAbsent(redisKey, "1", 24, TimeUnit.HOURS);
     }
-
 
     private void checkPolicy(AlertRequest request, AlertPolicy alertPolicy){
         // 정책 1 - 임계금액 체크
@@ -128,14 +124,14 @@ public class AlertService {
     private void firebaseFCM(AlertRequest request){}
 
     private void saveAlertLog(AlertRequest request) {
-        AlertLog alertLog = AlertLog.create(request.getAccountId(), request.getAmount(), request.getCurrency(),
+        AlertLog alertLog = AlertLog.create(request.getAccountId(), request.getType(), request.getAmount(), request.getCurrency(),
                 LocalDateTime.ofInstant(request.getTimestamp(), ZoneId.systemDefault()), Status.SUCCESS);
 
         alertLogRepository.save(alertLog);
     }
 
     public void saveFailLog(AlertRequest request, String errorCode, String errorMessage){
-        AlertLog alertLog = AlertLog.createFailed(request.getAccountId(), request.getAmount(), request.getCurrency(),
+        AlertLog alertLog = AlertLog.createFailed(request.getAccountId(), request.getType(), request.getAmount(), request.getCurrency(),
                 LocalDateTime.ofInstant(request.getTimestamp(), ZoneId.systemDefault()), Status.FAILURE, errorCode, errorMessage);
         alertLogRepository.save(alertLog);
     }

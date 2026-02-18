@@ -26,13 +26,16 @@ public class TransactionService {
 
     @Transactional
     public void create(TrxRequest request){
+        // 계좌 검증
         Account account = accountRepository.findById(request.getAccountId())
                 .orElseThrow(() -> new BizException(ACCOUNT_NOT_FOUND));
 
+        // 금액 검증
         if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
             throw new BizException(INVALID_AMOUNT);
         }
 
+        // 계좌 잔액 update
         BigDecimal balance = BigDecimal.ZERO;
         if(request.getType() == TrxType.CREDIT){
             // 잔액 감소
@@ -47,10 +50,12 @@ public class TransactionService {
         else {
             throw new BizException(INVALID_TRANSACTION_TYPE);
         }
-
         accountRepository.save(account);
 
+        // event 생성
         String eventId = IdGeneratorUtil.generateEventId();
+        // 멱등성 테스트로 인해 동일 ID로 테스트
+//        String eventId = "2024023932033699840";
         String trxId = IdGeneratorUtil.generateTrxId();
         TrxProducerEvent event = TrxProducerEvent.from(eventId, trxId, request.getAccountId(), request.getType(),
                 request.getAmount(), request.getCurrency(), Instant.now(), request.getDescription(), balance);
