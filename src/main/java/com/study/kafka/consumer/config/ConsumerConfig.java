@@ -4,12 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.kafka.consumer.model.TrxConsumerEvent;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.StringDeserializer;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory;
 import org.springframework.kafka.core.*;
 import org.springframework.kafka.listener.ContainerProperties;
+import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
 import java.util.HashMap;
@@ -38,13 +40,18 @@ public class ConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(props, new StringDeserializer(), jsonDeserializer);
     }
 
+    // (@Qualifier("trxEventConsumerFactory") -> 내가 설정한 trxEventConsumerFactory가 주입되도록 함
+
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, TrxConsumerEvent> kafkaListenerContainerFactory(ConsumerFactory<String, TrxConsumerEvent> consumerFactory) {
+    public ConcurrentKafkaListenerContainerFactory<String, TrxConsumerEvent> kafkaListenerContainerFactory(@Qualifier("trxEventConsumerFactory") ConsumerFactory<String, TrxConsumerEvent> consumerFactory,
+                                                                                                           DefaultErrorHandler defaultErrorHandler) {
         ConcurrentKafkaListenerContainerFactory<String, TrxConsumerEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         factory.setConcurrency(3);
+        // Retry + DLT 적용
+        factory.setCommonErrorHandler(defaultErrorHandler);
 
         return factory;
     }

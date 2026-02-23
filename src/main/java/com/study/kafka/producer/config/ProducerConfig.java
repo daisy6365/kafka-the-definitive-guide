@@ -1,5 +1,6 @@
 package com.study.kafka.producer.config;
 
+import com.study.kafka.consumer.model.TrxConsumerEvent;
 import com.study.kafka.producer.model.TrxProducerEvent;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.StringSerializer;
@@ -39,5 +40,20 @@ public class ProducerConfig {
     @Bean
     public KafkaTemplate<String, TrxProducerEvent> trxEventKafkaTemplate() {
         return new KafkaTemplate<>(TrxEventProducerFactory());
+    }
+
+    // DLT 발행 전용
+    @Bean
+    public ProducerFactory<String, TrxConsumerEvent> dltProducerFactory() {
+        Map<String, Object> props = new HashMap<>();
+        props.put(org.apache.kafka.clients.producer.ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaBootstrapServer);
+        props.put(org.apache.kafka.clients.producer.ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        props.put(org.apache.kafka.clients.producer.ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        return new DefaultKafkaProducerFactory<>(props);
+    }
+
+    @Bean
+    public KafkaTemplate<String, TrxConsumerEvent> dltKafkaTemplate() {
+        return new KafkaTemplate<>(dltProducerFactory());
     }
 }

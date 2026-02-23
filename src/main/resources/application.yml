@@ -31,6 +31,9 @@ spring:
         # 전송 시간 한도
         delivery.timeout.ms: 120000
         counting.interceptor.window.size.ms: 1000
+    # 성공 시 ack, 실패시 handler 타게함
+    listener:
+      ack-mode: manual
     topic: trx-created.v1
   data:
     redis:

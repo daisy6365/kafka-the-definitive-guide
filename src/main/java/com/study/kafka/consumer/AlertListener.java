@@ -35,16 +35,19 @@ public class AlertListener {
                           Acknowledgment ack) {
         // send sms/push
         log.info("Consumed eventId={} partition={} offset={}", event.getEventId(), partition, offset);
-        try {
+        try{
             alertService.sendAlert(AlertRequest.from(event));
             ack.acknowledge();
         }
         catch (BizException e){
             alertService.saveFailLog(AlertRequest.from(event), e.getErrorCode().getCode(), e.getErrorCode().getMessage());
-            ack.acknowledge();
+//            ack.acknowledge();
+            // 의도적으로 예외를 던짐 -> DLT Handler 유도
+            throw e;
         }
         catch (Exception e){
             log.error("[FATAL] Unexpected error while processing event {}", event, e);
+            throw e;
         }
     }
 
