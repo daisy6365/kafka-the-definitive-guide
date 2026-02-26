@@ -31,6 +31,10 @@ spring:
         # 전송 시간 한도
         delivery.timeout.ms: 120000
         counting.interceptor.window.size.ms: 1000
+    # Rebalance Cooperative : 기존 Consumer들이 맡고 있는 partition은 유지, 변경필요한 부분만 교체
+    consumer:
+      properties:
+        partition.assignment.strategy: org.apache.kafka.clients.consumer.CooperativeStickyAssignor
     # 성공 시 ack, 실패시 handler 타게함
     listener:
       ack-mode: manual

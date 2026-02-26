@@ -36,7 +36,7 @@ public class TrxEventProducer {
          * -> 고객 계좌정보를 기준으로 파티션 진행
          * **  상세 파티션 구현은 나중에 **
          */
-        kafkaTemplate.send(topic, String.valueOf(key), trxEvent)
+        kafkaTemplate.send(topic, String.valueOf(trxEvent.getEventId()), trxEvent)
                 .whenComplete((result, ex) -> {
                     if (ex != null) {
                         log.error("ASYNC produce failed. topic={} key={} event={} err={}", topic, key, trxEvent, ex.toString());

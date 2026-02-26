@@ -3,6 +3,9 @@ package com.study.kafka.consumer.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.study.kafka.consumer.model.TrxConsumerEvent;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,9 +17,11 @@ import org.springframework.kafka.listener.ContainerProperties;
 import org.springframework.kafka.listener.DefaultErrorHandler;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Slf4j
 @Configuration
 @RequiredArgsConstructor
 public class ConsumerConfig {
@@ -41,17 +46,36 @@ public class ConsumerConfig {
     }
 
     // (@Qualifier("trxEventConsumerFactory") -> 내가 설정한 trxEventConsumerFactory가 주입되도록 함
-
     @Bean
     public ConcurrentKafkaListenerContainerFactory<String, TrxConsumerEvent> kafkaListenerContainerFactory(@Qualifier("trxEventConsumerFactory") ConsumerFactory<String, TrxConsumerEvent> consumerFactory,
                                                                                                            DefaultErrorHandler defaultErrorHandler) {
         ConcurrentKafkaListenerContainerFactory<String, TrxConsumerEvent> factory =
                 new ConcurrentKafkaListenerContainerFactory<>();
         factory.setConsumerFactory(consumerFactory);
-        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
         factory.setConcurrency(3);
         // Retry + DLT 적용
         factory.setCommonErrorHandler(defaultErrorHandler);
+        factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
+        /**
+         * Rebalance 이벤트 등록
+         * Consumer가 작동 중단 or 추가 될 때,
+         * Rebalance를 통해 Consumer에게 Partition을 재분배
+         */
+        factory.getContainerProperties().setConsumerRebalanceListener(new ConsumerRebalanceListener() {
+            @Override
+            public void onPartitionsRevoked(Collection<TopicPartition> collection) {
+                // partition을 반납
+                log.info("[REBALANCE] revoked = {}", collection);
+
+            }
+
+            @Override
+            public void onPartitionsAssigned(Collection<TopicPartition> collection) {
+                // 재할당 뒤 재시작
+                log.info("[REBALANCE] assigned = {}", collection);
+
+            }
+        });
 
         return factory;
     }
