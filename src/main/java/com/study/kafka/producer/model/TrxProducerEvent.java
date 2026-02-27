@@ -19,9 +19,11 @@ public class TrxProducerEvent {
     private Instant timestamp; // 거래 timestamp
     private String description; // 설명
     private BigDecimal balance = BigDecimal.ZERO; // 거래 후 잔액
+    // Partition 처리 순서 확인
+    private Integer sequence;
 
     public static TrxProducerEvent from(String eventId, String trxId, Long accountId, TrxType type, BigDecimal amount,
-                                        String currency, Instant timestamp, String description, BigDecimal balance) {
+                                        String currency, Instant timestamp, String description, BigDecimal balance, Integer sequence) {
         TrxProducerEvent event = new TrxProducerEvent();
         event.eventId = eventId;
         event.trxId = trxId;
@@ -32,6 +34,7 @@ public class TrxProducerEvent {
         event.timestamp = timestamp;
         event.description = description;
         event.balance = balance;
+        event.sequence = sequence;
         return event;
     }
 }

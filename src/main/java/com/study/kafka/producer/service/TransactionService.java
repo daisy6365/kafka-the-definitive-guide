@@ -15,14 +15,19 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.study.kafka.common.exception.ErrorCode.*;
-
-@Service
+import static com.study.kafka.common.exception.ErrorCode.*;@Service
 @RequiredArgsConstructor
 public class TransactionService {
     private final TrxEventProducer trxEventProducer;
     private final AccountRepository accountRepository;
+    /**
+     * 실습 : 메모리 Map 사용
+     */
+    private final Map<Long, AtomicInteger> sequenceMap = new ConcurrentHashMap<>();
 
     @Transactional
     public void create(TrxRequest request){
@@ -52,13 +57,16 @@ public class TransactionService {
         }
         accountRepository.save(account);
 
+        // accountId 기준으로 Seq 증가
+        AtomicInteger generateSeq = sequenceMap.computeIfAbsent(request.getAccountId(), k -> new AtomicInteger(0));
+        Integer sequence = generateSeq.incrementAndGet();
         // event 생성
         String eventId = IdGeneratorUtil.generateEventId();
         // 멱등성 테스트로 인해 동일 ID로 테스트
 //        String eventId = "2024023932033699840";
         String trxId = IdGeneratorUtil.generateTrxId();
         TrxProducerEvent event = TrxProducerEvent.from(eventId, trxId, request.getAccountId(), request.getType(),
-                request.getAmount(), request.getCurrency(), Instant.now(), request.getDescription(), balance);
+                request.getAmount(), request.getCurrency(), Instant.now(), request.getDescription(), balance, sequence);
 
         trxEventProducer.sendAsync(request.getAccountId(), event);
     }

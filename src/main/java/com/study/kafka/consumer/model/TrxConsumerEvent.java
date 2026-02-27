@@ -21,4 +21,5 @@ public class TrxConsumerEvent {
     private Instant timestamp; // 거래 timestamp
     private String description; // 설명
     private BigDecimal balance; // 거래 후 잔액
+    private Integer sequence; // partition 순서
 }
