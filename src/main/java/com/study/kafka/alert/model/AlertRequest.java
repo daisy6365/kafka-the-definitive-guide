@@ -1,4 +1,4 @@
-package com.study.kafka.consumer.model;
+package com.study.kafka.alert.model;
 
 import com.study.kafka.common.type.TrxType;
 import lombok.Getter;

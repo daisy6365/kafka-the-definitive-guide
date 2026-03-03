@@ -1,7 +1,7 @@
-package com.study.kafka.producer.controller;
+package com.study.kafka.transaction.controller;
 
-import com.study.kafka.producer.model.TrxRequest;
-import com.study.kafka.producer.service.TransactionService;
+import com.study.kafka.transaction.model.TrxRequest;
+import com.study.kafka.transaction.service.TransactionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

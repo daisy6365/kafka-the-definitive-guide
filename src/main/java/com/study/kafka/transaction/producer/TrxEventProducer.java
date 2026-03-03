@@ -1,6 +1,6 @@
-package com.study.kafka.producer;
+package com.study.kafka.transaction.producer;
 
-import com.study.kafka.producer.model.TrxProducerEvent;
+import com.study.kafka.transaction.model.TrxProducerEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.RecordMetadata;

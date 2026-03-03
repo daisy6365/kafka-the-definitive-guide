@@ -1,7 +1,7 @@
-package com.study.kafka.producer.config;
+package com.study.kafka.transaction.config;
 
-import com.study.kafka.consumer.model.TrxConsumerEvent;
-import com.study.kafka.producer.model.TrxProducerEvent;
+import com.study.kafka.alert.model.TrxConsumerEvent;
+import com.study.kafka.transaction.model.TrxProducerEvent;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;

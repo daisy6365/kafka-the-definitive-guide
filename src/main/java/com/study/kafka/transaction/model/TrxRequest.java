@@ -1,4 +1,4 @@
-package com.study.kafka.producer.model;
+package com.study.kafka.transaction.model;
 
 import com.study.kafka.common.type.TrxType;
 import lombok.Getter;

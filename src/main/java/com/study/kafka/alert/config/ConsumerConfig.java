@@ -1,7 +1,7 @@
-package com.study.kafka.consumer.config;
+package com.study.kafka.alert.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.study.kafka.consumer.model.TrxConsumerEvent;
+import com.study.kafka.alert.model.TrxConsumerEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRebalanceListener;

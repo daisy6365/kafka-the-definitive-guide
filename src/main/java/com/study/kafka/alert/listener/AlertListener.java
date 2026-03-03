@@ -1,13 +1,12 @@
-package com.study.kafka.consumer;
+package com.study.kafka.alert.listener;
 
 import com.study.kafka.common.exception.BizException;
-import com.study.kafka.consumer.model.AlertRequest;
-import com.study.kafka.consumer.model.TrxConsumerEvent;
-import com.study.kafka.consumer.service.AlertService;
+import com.study.kafka.alert.model.AlertRequest;
+import com.study.kafka.alert.model.TrxConsumerEvent;
+import com.study.kafka.alert.service.AlertService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.annotation.KafkaListener;
-import org.springframework.kafka.annotation.TopicPartition;
 import org.springframework.kafka.support.Acknowledgment;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;

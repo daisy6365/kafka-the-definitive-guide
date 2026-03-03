@@ -1,13 +1,12 @@
-package com.study.kafka.consumer.service;
+package com.study.kafka.alert.service;
 
 import com.study.kafka.common.exception.BizException;
-import com.study.kafka.consumer.model.AlertRequest;
+import com.study.kafka.alert.model.AlertRequest;
 import com.study.kafka.entity.Account;
 import com.study.kafka.entity.AlertLog;
 import com.study.kafka.entity.AlertPolicy;
 import com.study.kafka.entity.AlertPref;
 import com.study.kafka.entity.common.Status;
-import com.study.kafka.consumer.model.TrxConsumerEvent;
 import com.study.kafka.repository.AccountRepository;
 import com.study.kafka.repository.AlertLogRepository;
 import com.study.kafka.repository.AlertPolicyRepository;

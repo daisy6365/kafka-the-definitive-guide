@@ -1,13 +1,12 @@
-package com.study.kafka.producer.service;
+package com.study.kafka.transaction.service;
 
 import com.study.kafka.common.exception.BizException;
-import com.study.kafka.common.exception.ErrorCode;
 import com.study.kafka.common.type.TrxType;
 import com.study.kafka.common.util.IdGeneratorUtil;
 import com.study.kafka.entity.Account;
-import com.study.kafka.producer.TrxEventProducer;
-import com.study.kafka.producer.model.TrxProducerEvent;
-import com.study.kafka.producer.model.TrxRequest;
+import com.study.kafka.transaction.producer.TrxEventProducer;
+import com.study.kafka.transaction.model.TrxProducerEvent;
+import com.study.kafka.transaction.model.TrxRequest;
 import com.study.kafka.repository.AccountRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

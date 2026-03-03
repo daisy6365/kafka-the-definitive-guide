@@ -1,6 +1,6 @@
-package com.study.kafka.consumer.config;
+package com.study.kafka.alert.config;
 
-import com.study.kafka.consumer.model.TrxConsumerEvent;
+import com.study.kafka.alert.model.TrxConsumerEvent;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.common.TopicPartition;
 import org.springframework.beans.factory.annotation.Qualifier;
