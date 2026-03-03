@@ -1,4 +1,4 @@
-package com.study.kafka.common;
+package com.study.kafka.common.util;
 
 public class Snowflake {
     private final long workerId;

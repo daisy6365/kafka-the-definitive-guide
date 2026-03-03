@@ -39,7 +39,7 @@ public class TrxEventProducer {
          * Partition Ordering
          * 같은 key(accountId) -> 같은 partition -> ordering 보장
          */
-        kafkaTemplate.send(topic, String.valueOf(key), trxEvent)
+        kafkaTemplate.send(topic, String.valueOf(trxEvent.getEventId()), trxEvent)
                 .whenComplete((result, ex) -> {
                     if (ex != null) {
                         log.error("ASYNC produce failed. topic={} key={} event={} err={}", topic, key, trxEvent, ex.toString());

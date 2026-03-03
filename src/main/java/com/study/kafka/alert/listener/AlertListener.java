@@ -32,11 +32,12 @@ public class AlertListener {
                           @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
                           @Header(KafkaHeaders.OFFSET) long offset,
                           @Header(KafkaHeaders.RECEIVED_KEY) String key,
-                          Acknowledgment ack) {
+                          Acknowledgment ack) throws InterruptedException {
         // send sms/push
         log.info("Consumed eventId={} partition={} offset={}, key={}, seq={}, accountId={}",
                 event.getEventId(), partition, offset, key, event.getSequence(), event.getAccountId());
         try{
+//            Thread.sleep(500);
             alertService.sendAlert(AlertRequest.from(event));
             ack.acknowledge();
         }

@@ -18,7 +18,10 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static com.study.kafka.common.exception.ErrorCode.*;@Service
+import static com.study.kafka.common.exception.ErrorCode.*;
+
+@Service
+@Transactional
 @RequiredArgsConstructor
 public class TransactionService {
     private final TrxEventProducer trxEventProducer;
@@ -28,7 +31,6 @@ public class TransactionService {
      */
     private final Map<Long, AtomicInteger> sequenceMap = new ConcurrentHashMap<>();
 
-    @Transactional
     public void create(TrxRequest request){
         // 계좌 검증
         Account account = accountRepository.findById(request.getAccountId())
